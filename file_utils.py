@@ -35,6 +35,15 @@ def get_file_size(filename: str):
     return os.path.getsize(filename)
 
 
+def file_exists(filename: str):
+    """
+    Checks whether or not the file exists.
+    :param filename: The string representing the filename.
+    :return: Boolean representing whether or not file exists.
+    """
+    return os.path.exists(get_abs_path(filename))
+
+
 def main():
     testing_path1 = "hello.txt"
     print("File extension of %s: %s" % (testing_path1, get_extension(testing_path1)))

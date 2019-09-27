@@ -1,13 +1,10 @@
-from typing import Tuple
-
-
 class ArgumentException(Exception):
     pass
 
 
 class ArgumentOption(object):
 
-    def __init__(self, short, long=""):
+    def __init__(self, short: chr, long: str = ""):
         self.short = short
         self.long = long
 
