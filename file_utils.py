@@ -1,7 +1,8 @@
+from typing import NoReturn
 import os
 
 
-def get_extension(filename: str):
+def get_extension(filename: str) -> str:
     """
     This function will get the file extension
     based on the file name.
@@ -11,7 +12,7 @@ def get_extension(filename: str):
     return os.path.basename(filename).split('.')[-1]
 
 
-def get_abs_path(filename: str):
+def get_abs_path(filename: str) -> str:
     """
     This function will get the absolute path
     of the file path given
@@ -22,7 +23,7 @@ def get_abs_path(filename: str):
     return os.path.abspath(filename)
 
 
-def get_file_size(filename: str):
+def get_file_size(filename: str) -> int:
     """
     Get the file size of the given file.
     :param filename: String representing the file path.
@@ -35,7 +36,7 @@ def get_file_size(filename: str):
     return os.path.getsize(filename)
 
 
-def file_exists(filename: str):
+def file_exists(filename: str) -> bool:
     """
     Checks whether or not the file exists.
     :param filename: The string representing the filename.
@@ -44,7 +45,7 @@ def file_exists(filename: str):
     return os.path.exists(get_abs_path(filename))
 
 
-def main():
+def main() -> NoReturn:
     testing_path1 = "hello.txt"
     print("File extension of %s: %s" % (testing_path1, get_extension(testing_path1)))
 

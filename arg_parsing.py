@@ -14,7 +14,7 @@ class ArgumentOption(object):
     def __str__(self):
         return "Option ({:s}, {:s})".format(self.short, self.long)
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return self.long or self.short
 
 
@@ -41,7 +41,7 @@ class ParsedArgument(Argument):
         self.value = value
         self.success = False
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return not not self.value
 
     def __repr__(self):

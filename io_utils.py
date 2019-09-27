@@ -1,4 +1,4 @@
-from typing import TextIO
+from typing import NoReturn
 import file_utils as fu
 
 
@@ -11,7 +11,7 @@ class File(object):
     def __init__(self, file_path: str):
         self.file_path = fu.get_abs_path(file_path)
 
-    def read_line(self):
+    def read_line(self) -> str:
         """
         Reads the line number given, returning it as
         a string.
@@ -21,7 +21,7 @@ class File(object):
         with open(self.file_path, "rt") as f:
             return f.readline()
 
-    def reset(self):
+    def reset(self) -> NoReturn:
         """
         Takes reader pointer to the beginning of the file.
         :return: void
@@ -29,7 +29,7 @@ class File(object):
         pass
 
 
-def main():
+def main() -> NoReturn:
     file = File("finder.py")
     print(file.read_line())
 

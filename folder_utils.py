@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, NoReturn
 import os
 
 
-def get_files(path: str):
+def get_files(path: str) -> List[str]:
     """
     This function will get the files under
     the folder path given.
@@ -15,7 +15,7 @@ def get_files(path: str):
     return os.listdir(path)
 
 
-def filter_files(path_list: List[str]):
+def filter_files(path_list: List[str]) -> List[str]:
     """
     This function will filter the list given so
     only the file names will be kept.
@@ -25,7 +25,7 @@ def filter_files(path_list: List[str]):
     return [i for i in path_list if os.path.isfile(i)]
 
 
-def filter_folders(path_list: List[str]):
+def filter_folders(path_list: List[str]) -> List[str]:
     """
     This function will filter the list given
     so only the directory names will be kept
@@ -35,7 +35,7 @@ def filter_folders(path_list: List[str]):
     return [i for i in path_list if os.path.isdir(i)]
 
 
-def main():
+def main() -> NoReturn:
     print("==Running the test code==")
     print("Current working dir is: %s" % os.getcwd())
     print("The files under this directory are: %s" % get_files(""))

@@ -17,13 +17,13 @@ Arguments:
 from colorama import Fore, Back, Style
 from colorama import init as colour_init
 from docopt import docopt
-from typing import List, Dict
+from typing import List, Dict, NoReturn
 from arg_parsing import Argument, ParsedArgument, ArgumentOption
 import file_utils
 import folder_utils
 
 
-def parse_arg(argument: Argument, doc_args: Dict[str, str]):
+def parse_arg(argument: Argument, doc_args: Dict[str, str]) -> ParsedArgument:
     """
     This function will return the parsed argument
     from the docopt parsed argument dictionary.
@@ -55,7 +55,7 @@ def parse_arg(argument: Argument, doc_args: Dict[str, str]):
     return ParsedArgument(argument.arg, argument.description, value, argument.option)
 
 
-def main():
+def main() -> NoReturn:
     to_parse = [
         Argument("<dir>", "root directory"),
         Argument("<save>", "save directory for output.", ArgumentOption("s", "save")),
