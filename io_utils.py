@@ -11,6 +11,13 @@ class File(object):
     def __init__(self, file_path: str):
         self.file_path = fu.get_abs_path(file_path)
 
+        try:
+            self.file_handle = open(self.file_path, "r")
+        except IOError as e:
+            print("Error opening file: %s" % e)
+        finally:
+            self.file_handle = None
+
     def read_line(self) -> str:
         """
         Reads the line number given, returning it as
@@ -18,8 +25,17 @@ class File(object):
         :return: String with the contents of the line given.
         """
 
-        with open(self.file_path, "rt") as f:
-            return f.readline()
+        if self.file_handle:
+            try:
+                return self.file_handle.readline()
+            except IOError as e:
+                raise FileException()
+            finally:
+                self.file_handle.close()
+
+        # TODO : add meaningful messages
+        # File is not open here
+        raise FileException()
 
     def reset(self) -> NoReturn:
         """
