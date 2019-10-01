@@ -15,7 +15,6 @@ class File(object):
             self.file_handle = open(self.file_path, "r")
         except IOError as e:
             print("Error opening file: %s" % e)
-        finally:
             self.file_handle = None
 
     def read_line(self) -> str:
@@ -30,12 +29,24 @@ class File(object):
                 return self.file_handle.readline()
             except IOError as e:
                 raise FileException()
-            finally:
-                self.file_handle.close()
+        else:
+            # TODO : add meaningful messages
+            # File is not open here
+            raise FileException()
 
-        # TODO : add meaningful messages
-        # File is not open here
-        raise FileException()
+    def read_all(self):
+        """
+        Reads the whole file as a string.
+        :return: String representing the contents of
+        the file.
+        """
+        if self.file_handle:
+            try:
+                return self.file_handle.readlines()
+            except IOError as e:
+                raise FileException
+        else:
+            raise FileException
 
     def reset(self) -> NoReturn:
         """
@@ -44,10 +55,23 @@ class File(object):
         """
         pass
 
+    def close(self) -> NoReturn:
+        """
+        Closes the file handle.
+        :return: void
+        """
+        if self.file_handle:
+            self.file_handle.close()
+
 
 def main() -> NoReturn:
+    # Testing code
     file = File("finder.py")
-    print(file.read_line())
+    print(file.read_line(), end="")
+    print(file.read_line(), end="")
+    print(file.read_line(), end="")
+    print(file.read_line(), end="")
+    file.close()
 
 
 if __name__ == "__main__":
