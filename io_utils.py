@@ -1,4 +1,4 @@
-from typing import NoReturn
+from typing import NoReturn, Type
 import file_utils as fu
 
 
@@ -44,9 +44,9 @@ class File(object):
             try:
                 return self.file_handle.readlines()
             except IOError as e:
-                raise FileException
+                raise FileException("Error while reading the file.")
         else:
-            raise FileException
+            raise FileException("File handle is not initialised")
 
     def reset(self) -> NoReturn:
         """
@@ -63,6 +63,21 @@ class File(object):
         if self.file_handle:
             self.file_handle.close()
 
+    # So it can be used with if
+    def __enter__(self):
+        return self
+
+    # TODO : find the proper type of this traceback
+    def __exit__(self, except_type: Type, except_val: Exception, traceback: Type):
+
+        # TODO : Find the proper way to handle exceptions in
+        # this exit function
+        if except_type == type(FileException):
+            print("File Exception occurred")
+
+        print("Closing file")
+        self.file_handle.close()
+
 
 def main() -> NoReturn:
     # Testing code
@@ -72,6 +87,10 @@ def main() -> NoReturn:
     print(file.read_line(), end="")
     print(file.read_line(), end="")
     file.close()
+
+    # Testing it reads the whole file
+    with File("finder.py") as f:
+        print(f.read_all())
 
 
 if __name__ == "__main__":
