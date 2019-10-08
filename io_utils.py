@@ -1,3 +1,4 @@
+from types import TracebackType
 from typing import NoReturn, Type
 import file_utils as fu
 
@@ -28,11 +29,9 @@ class File(object):
             try:
                 return self.file_handle.readline()
             except IOError as e:
-                raise FileException()
+                raise FileException("Could not read lines. Maybe file is not open.")
         else:
-            # TODO : add meaningful messages
-            # File is not open here
-            raise FileException()
+            raise FileException("File handle does not exist.")
 
     def read_all(self):
         """
@@ -67,16 +66,15 @@ class File(object):
     def __enter__(self):
         return self
 
-    # TODO : find the proper type of this traceback
-    def __exit__(self, except_type: Type, except_val: Exception, traceback: Type):
-
-        # TODO : Find the proper way to handle exceptions in
-        # this exit function
-        if except_type == type(FileException):
-            print("File Exception occurred")
-
-        print("Closing file")
+    def __exit__(self, except_type: Type, except_val: Exception, traceback: TracebackType):
         self.file_handle.close()
+
+        if except_type == FileException:
+            # TODO : Remove the print statements, sub for a function
+            # or do proper logging
+            print("Exception occurred: %s"% except_val)
+            print("Closing file %s..." % self.file_path)
+            return True
 
 
 def main() -> NoReturn:
