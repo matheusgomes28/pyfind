@@ -1,20 +1,24 @@
 # file_tree.py - Contains the code for the file structure
-import file_utils as fu
+import folder_utils
 from __future__ import annotations
 from typing import NoReturn
 
 
 class NodeError(Exception):
-
-    def __init__(self, message):
-        self.message = message
+    pass
 
 
 class ChildNumberException(NodeError):
 
-    def __init__(self, number):
+    def __init__(self, number: int):
         super().__init__("Node number given for child is out of bounds")
         self.number = number
+
+
+class FolderNodeError(NodeError):
+
+    def __init__(self, message: str):
+        super().init__(message)
 
 
 class Node(object):
@@ -40,19 +44,34 @@ class Node(object):
         :param num: Integer representing position of child.
         :return: Node object representing the child.
         """
+        return self[num]
 
-        if 0 <= num < len(self.children):
-            return self.children[num]
+    # So we can iterate through child nodes
+    def __len__(self) -> int:
+        return len(self.children)
 
-        # If it reached this, num is out of bounds
-        raise ChildNumberException(num)
+    # So we can iterate through child nodes
+    def __getitem__(self, item: int) -> Node:
+        if 0 <= item < len(self):
+            return self.children[item]
+        else:
+            raise ChildNumberException("Children index out of bounds")
+
+    def __repr__(self):
+        return "({:s}, Children: {:d}".format(self.__class__, len(self))
 
 
-# TODO Finish implementing this class
 class FolderNode(Node):
-    pass
+
+    def __init__(self, path: str):
+        if not folder_utils.is_folder(path):
+            raise FolderNodeError("Path given is not a directory")
+
+        super(FolderNode, self).__init__(path)
 
 
-# TODO finish implementing this class
 class FileNode(Node):
-    pass
+
+    def __init__(self, path: str):
+        # TODO : Check that the path is a file indeed
+        super(FileNode, self).__init__(path)

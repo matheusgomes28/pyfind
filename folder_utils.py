@@ -2,6 +2,16 @@ from typing import List, NoReturn
 import os
 
 
+def is_folder(path: str) -> bool:
+    """
+    This function checks whether the path given
+    is indeed a directory or not.
+    :param path: The path (rel or abs) of the supposed dir.
+    :return: True if it is a directory, False otherwise.
+    """
+    return os.path.isdir(os.path.abspath(path))
+
+
 def get_files(path: str) -> List[str]:
     """
     This function will get the files under
