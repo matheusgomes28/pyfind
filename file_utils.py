@@ -2,6 +2,26 @@ from typing import NoReturn
 import os
 
 
+def is_file(filename: str) -> str:
+    """
+    Checks whether the given path is a file.
+    :param filename: String representing the path (rel or abs).
+    :return: True if the path is a file, False otherwise.
+    """
+
+    return file_exists(filename) and os.path.isfile(get_abs_path(filename))
+
+
+def get_filename(path: str) -> str:
+    """
+    This function gets the filename of the path
+    given. For example, 'foo/bar/hello.exe' returns 'hello.exe'.
+    :param path: String representing the path containing the file.
+    :return: String representing the filename.
+    """
+    return is_file(path) and os.path.basename(path)
+
+
 def get_extension(filename: str) -> str:
     """
     This function will get the file extension

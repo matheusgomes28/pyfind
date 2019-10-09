@@ -30,10 +30,10 @@ def get_files(path: str) -> List[str]:
     :param path: String representing the directory path.
     :return: List of files under the given directory.
     """
-    if not path:
+    if path == ".":
         return os.listdir()
-
-    return os.listdir(path)
+    else:
+        return os.listdir(path)
 
 
 def filter_files(path_list: List[str]) -> List[str]:
