@@ -62,7 +62,7 @@ class Node(object):
         if 0 <= item < len(self):
             return self.children[item]
         else:
-            raise ChildNumberException("Children index out of bounds")
+            raise IndexError
 
     def __repr__(self):
         child_repr = repr(self.children)[0:40] + "...]"
@@ -107,3 +107,12 @@ class FileNode(Node):
         all_props = set(dir(self.__class__)) | set(self.__dict__.keys())
         filtered = all_props - set(["add_child", "get_child"])
         return filtered
+
+
+def view_node(node: Node, n: int = 0) -> NoReturn:
+    trail = "|" + "-" * n
+    print(trail + "{:s}".format(node.name))
+
+    if node.__class__ == FolderNode:
+        for child in node:
+            view_node(child, n + 1)

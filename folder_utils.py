@@ -11,6 +11,7 @@ def is_folder(path: str) -> bool:
     """
     return os.path.isdir(os.path.abspath(path))
 
+
 def get_dir_name(path: str) -> str:
     """
     This function will get the top directory name
@@ -20,7 +21,7 @@ def get_dir_name(path: str) -> str:
     :return: String representing the name of the top directory.
     """
     p = os.path
-    return p.split(p.dirname(path))[-1]
+    return is_folder(path) and p.split(p.dirname(p.abspath(path)))[-1]
 
 
 def get_files(path: str) -> List[str]:

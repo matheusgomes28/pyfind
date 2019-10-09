@@ -19,8 +19,35 @@ from colorama import init as colour_init
 from docopt import docopt
 from typing import List, Dict, NoReturn
 from arg_parsing import Argument, ParsedArgument, ArgumentOption
+from file_tree import Node, FileNode, FolderNode, NodeError, view_node
 import file_utils
 import folder_utils
+
+
+def build_file_tree(path: str) -> Node:
+    return get_node(path)
+
+
+def get_node(path: str) -> Node:
+
+    if file_utils.is_file(path):
+        return FileNode(path)
+    elif folder_utils.is_folder(path):
+        curr_node = FolderNode(path)
+
+        child_names = folder_utils.get_files(path)
+        files = [f for f in child_names if file_utils.is_file(f)]
+        folders = [f for f in child_names if folder_utils.is_folder(f)]
+
+        for f in files:
+            curr_node.add_child(FileNode(f))
+        for f in folders:
+            curr_node.add_child(get_node(f))
+
+        return curr_node
+
+    else:
+        raise NodeError("Invalid Node type for path")
 
 
 def parse_arg(argument: Argument, doc_args: Dict[str, str]) -> ParsedArgument:
@@ -79,7 +106,11 @@ def main() -> NoReturn:
         print("Argument: %s" % arg.arg)
         print("Value: %s" % arg.value)
         print("Description: %s" % arg.description)
-        print()
+    print("================================")
+
+    root_folder = [arg.value for arg in valid_parsed if arg.arg == "<dir>"][0]
+    root = build_file_tree(root_folder)
+    view_node(root)
 
 
 if __name__ == "__main__":
