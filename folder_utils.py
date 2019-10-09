@@ -11,6 +11,17 @@ def is_folder(path: str) -> bool:
     """
     return os.path.isdir(os.path.abspath(path))
 
+def get_dir_name(path: str) -> str:
+    """
+    This function will get the top directory name
+    of the path given. For example 'foo/bar/file.exe' will
+    return 'bar'.
+    :param path: String representing the path.
+    :return: String representing the name of the top directory.
+    """
+    p = os.path
+    return p.split(p.dirname(path))[-1]
+
 
 def get_files(path: str) -> List[str]:
     """
