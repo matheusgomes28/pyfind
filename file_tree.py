@@ -1,7 +1,7 @@
 # file_tree.py - Contains the code for the file structure
+from __future__ import annotations
 import folder_utils
 import file_utils
-from __future__ import annotations
 from typing import NoReturn
 
 
@@ -65,10 +65,11 @@ class Node(object):
             raise ChildNumberException("Children index out of bounds")
 
     def __repr__(self):
-        return "({:s}, Name: {:s}, Children: {:.15s})".format(self.__class__, self.name, self.children)
+        child_repr = repr(self.children)[0:40] + "...]"
+        return "({:s}, Name: {:s}, Children: {:.43s})".format(self.__class__.__name__, self.name, child_repr)
 
     def __str__(self):
-        return "({:s}, Name: {:s}, N Children: {:d})".format(self.__class__, self.name, len(self.children))
+        return "({:s}, Name: {:s}, N Children: {:d})".format(self.__class__.__name__, self.name, len(self.children))
 
 
 # TODO : Perhaps add some class docstrings here
@@ -94,4 +95,15 @@ class FileNode(Node):
         super().__init__(file_utils.get_filename(path))
         self.path = path
 
+    # Elegantly removing the add/get for children
+    def __getattribute__(self, name):
+        if name in ["add_child", "get_child"]:
+            raise AttributeError("Deleted attribute: " + name)
+        else:
+            return super(FileNode, self).__getattribute__(name)
 
+    # Elegantly removing the add/get for children
+    def __dir__(self):
+        all_props = set(dir(self.__class__)) | set(self.__dict__.keys())
+        filtered = all_props - set(["add_child", "get_child"])
+        return filtered
