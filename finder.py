@@ -17,11 +17,14 @@ Arguments:
 from colorama import Fore, Back, Style
 from colorama import init as colour_init
 from docopt import docopt
-from typing import List, Dict, NoReturn
+from typing import List, Dict, NoReturn, Tuple
 from arg_parsing import Argument, ParsedArgument, ArgumentOption
 from file_tree import Node, FileNode, FolderNode, NodeError, view_node
 import file_utils
 import folder_utils
+import io_utils
+import json
+import itertools
 
 
 # TODO : Should really be a builder in the file_tree.py script
@@ -50,6 +53,41 @@ def get_node(path: str) -> Node:
 
     else:
         raise NodeError("Invalid Node type for path")
+
+
+def get_all_file_nodes(root: FolderNode) -> List[FileNode]:
+
+    def get_all_file_nodes_r(curr_node: Node):
+        if curr_node.__class__ == FileNode:
+            return [curr_node.path]
+        elif curr_node.__class__ == FolderNode:
+            children = [get_all_file_nodes_r(c) for c in curr_node]
+            return list(itertools.chain(*children))
+        else:
+            raise NodeError("Not a valid node type to parse")
+
+    return get_all_file_nodes_r(root)
+
+
+def analyse_files(files: List[str], matches: List[str], extensions: List[str], max_size: int) -> List[Tuple[int, str]]:
+    occurrences = {}
+    i = 0
+    for file in files:
+        print("Analysing {:.2f}   \r".format(100*i/len(files)), end="")
+        i += 1
+
+        # Filter out non source files
+        if file_utils.get_extension(file) not in extensions:
+            continue
+        # Filter out files that are too big
+        if file_utils.get_file_size(file) > max_size:
+            continue
+
+        results = io_utils.find_in_file(file, matches)
+        if len(results) > 0:
+            occurrences[file] = results
+
+    return occurrences
 
 
 def parse_arg(argument: Argument, doc_args: Dict[str, str]) -> ParsedArgument:
@@ -111,8 +149,20 @@ def main() -> NoReturn:
     print("================================")
 
     root_folder = [arg.value for arg in valid_parsed if arg.arg == "<dir>"][0]
-    root = build_file_tree(root_folder)
-    view_node(root)
+    print("Generating file tree...")
+    root_node = build_file_tree(root_folder)
+
+    print("Finding files...")
+    all_files = get_all_file_nodes(root_node)
+    print("Number of files found: {:d}".format(len(all_files)))
+
+    print("Checking for word occurrences")
+    occurrences = analyse_files(files=all_files, matches=["LFM"], extensions=["cc", "h", "cpp", "py"], max_size=3000000)
+    print("")
+    print("Saving file to output.txt")
+
+    with open("output.json", "w") as f:
+        json.dump(occurrences, f)
 
 
 if __name__ == "__main__":

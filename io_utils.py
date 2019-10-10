@@ -1,7 +1,10 @@
 from types import TracebackType
-from typing import NoReturn, Type
+from typing import NoReturn, Type, List, Tuple
 import file_utils as fu
+import sys
 
+def LOG(error: str) -> NoReturn:
+    print(error)
 
 class FileException(Exception):
     pass
@@ -13,7 +16,7 @@ class File(object):
         self.file_path = fu.get_abs_path(file_path)
 
         try:
-            self.file_handle = open(self.file_path, "r")
+            self.file_handle = open(self.file_path, "r", errors="ignore")
         except IOError as e:
             print("Error opening file: %s" % e)
             self.file_handle = None
@@ -69,12 +72,28 @@ class File(object):
     def __exit__(self, except_type: Type, except_val: Exception, traceback: TracebackType):
         self.file_handle.close()
 
-        if except_type == FileException:
-            # TODO : Remove the print statements, sub for a function
-            # or do proper logging
-            print("Exception occurred: %s"% except_val)
-            print("Closing file %s..." % self.file_path)
-            return True
+        def print_f(*args):
+            pass
+
+        if except_type:
+            if except_type == FileException:
+                print_f("Exception occurred: %s"% except_val)
+                print_f("Closing file %s..." % self.file_path)
+                return True
+            else:
+                LOG("Unknown error occurred in file: {:s}".format(self.file_path))
+                sys.exit()
+
+
+# TODO : Perhaps change the match obj to a list
+def find_in_file(path: str, matches: List[str]) -> List[Tuple[int, str]]:
+    lines = None  # Will hold the contents of each line
+    with File(path) as f:
+        # Should be [(line_n, contents)]
+        lines = enumerate(list(f.file_handle))
+
+    # Run the string checking in each of the lines
+    return [(n + 1, s) for n, s in lines for match in matches if match in s]
 
 
 def main() -> NoReturn:
@@ -88,7 +107,10 @@ def main() -> NoReturn:
 
     # Testing it reads the whole file
     with File("finder.py") as f:
-        print(f.read_all())
+        lines = list(f.file_handle)
+        print("Number of lines is {:d}".format(len(lines)))
+
+    print(find_in_file("io_utils.py", ["pass"]))
 
 
 if __name__ == "__main__":
