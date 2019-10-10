@@ -21,7 +21,17 @@ def get_dir_name(path: str) -> str:
     :return: String representing the name of the top directory.
     """
     p = os.path
-    return is_folder(path) and p.split(p.dirname(p.abspath(path)))[-1]
+    return is_folder(path) and p.split(p.abspath(path))[-1]
+
+
+def join_path(left: str, right: str) -> str:
+    """
+    This function will join the paths given into a single string.
+    :param left: The base directory to be joined on the left.
+    :param right: The second path to be joined on the right.
+    :return: A String representing the whole joined path.
+    """
+    return os.path.join(left, right)
 
 
 def get_files(path: str) -> List[str]:
@@ -31,7 +41,7 @@ def get_files(path: str) -> List[str]:
     :param path: String representing the directory path.
     :return: List of files under the given directory.
     """
-    if path == ".":
+    if path in ['.', '']:
         return os.listdir()
     else:
         return os.listdir(path)

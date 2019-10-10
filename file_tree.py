@@ -29,6 +29,10 @@ class FileNodeError(NodeError):
 
 
 class Node(object):
+    """
+    Parent of all the node objects. This represents a
+    Node in a tree, it may have children.
+    """
 
     def __init__(self, name: str):
         self.name = name
@@ -72,8 +76,12 @@ class Node(object):
         return "({:s}, Name: {:s}, N Children: {:d})".format(self.__class__.__name__, self.name, len(self.children))
 
 
-# TODO : Perhaps add some class docstrings here
 class FolderNode(Node):
+    """
+    This is the representation of a folder in the file
+    tree. Note that the children of this object may be
+    another folder or a file.
+    """
 
     def __init__(self, path: str):
 
@@ -84,8 +92,12 @@ class FolderNode(Node):
         self.path = path
 
 
-# TODO : Perhaps add some class docstrings here
 class FileNode(Node):
+    """
+    This is the representation of a file in the file
+    tree. Note that this object cannot have any children,
+    so the get/add children objects are deleted.
+    """
 
     def __init__(self, path: str):
 
@@ -104,14 +116,15 @@ class FileNode(Node):
 
     # Elegantly removing the add/get for children
     def __dir__(self):
-        all_props = set(dir(self.__class__)) | set(self.__dict__.keys())
-        filtered = all_props - set(["add_child", "get_child"])
+        all_props = {dir(self.__class__)} | {self.__dict__.keys()}
+        filtered = all_props - {"add_child", "get_child"}
         return filtered
 
 
 def view_node(node: Node, n: int = 0) -> NoReturn:
-    trail = "|" + "-" * n
-    print(trail + "{:s}".format(node.name))
+    print_f = print  # May be a file output or something
+    trail = "|" + "-" * (n*2)
+    print_f(trail + "{:s}".format(node.name))
 
     if node.__class__ == FolderNode:
         for child in node:

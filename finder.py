@@ -24,6 +24,7 @@ import file_utils
 import folder_utils
 
 
+# TODO : Should really be a builder in the file_tree.py script
 def build_file_tree(path: str) -> Node:
     return get_node(path)
 
@@ -35,7 +36,8 @@ def get_node(path: str) -> Node:
     elif folder_utils.is_folder(path):
         curr_node = FolderNode(path)
 
-        child_names = folder_utils.get_files(path)
+        abs_path = file_utils.get_abs_path(path)
+        child_names = [folder_utils.join_path(abs_path, f) for f in folder_utils.get_files(path)]
         files = [f for f in child_names if file_utils.is_file(f)]
         folders = [f for f in child_names if folder_utils.is_folder(f)]
 
