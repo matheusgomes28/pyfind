@@ -17,9 +17,9 @@ Arguments:
 from colorama import Fore, Back, Style
 from colorama import init as colour_init
 from docopt import docopt
-from typing import List, Dict, NoReturn, Tuple
+from typing import List, Dict, NoReturn, NamedTuple
 from arg_parsing import Argument, ParsedArgument, ArgumentOption
-from file_tree import Node, FileNode, FolderNode, NodeError, view_node
+from file_tree import Node, FileNode, FolderNode, NodeError
 import file_utils
 import folder_utils
 import io_utils
@@ -69,7 +69,7 @@ def get_all_file_nodes(root: FolderNode) -> List[FileNode]:
     return get_all_file_nodes_r(root)
 
 
-def analyse_files(files: List[str], matches: List[str], extensions: List[str], max_size: int) -> List[Tuple[int, str]]:
+def analyse_files(files: List[str], matches: List[str], extensions: List[str], max_size: int) -> Dict[str, List[NamedTuple]]:
     occurrences = {}
     i = 0
     for file in files:
@@ -157,12 +157,18 @@ def main() -> NoReturn:
     print("Number of files found: {:d}".format(len(all_files)))
 
     print("Checking for word occurrences")
-    occurrences = analyse_files(files=all_files, matches=["LFM"], extensions=["cc", "h", "cpp", "py"], max_size=3000000)
+    occurrences = analyse_files(files=all_files, matches=[" LFM ", " Server ", " NetView ", " Netview ", " netview "], extensions=["cc", "h", "cpp", "py"], max_size=3000000)
     print("")
+    print("Number of files which contain the matches: {:d}".format(len(occurrences)))
+    print("Preparing JSON data...")
+    json_dump = {}
+    for key in occurrences:
+        json_dump[key] = [i._asdict() for i in occurrences[key]]
+
     print("Saving file to output.txt")
 
     with open("output.json", "w") as f:
-        json.dump(occurrences, f)
+        json.dump(json_dump, f)
 
 
 if __name__ == "__main__":

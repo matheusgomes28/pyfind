@@ -1,10 +1,13 @@
 from types import TracebackType
-from typing import NoReturn, Type, List, Tuple
+from typing import NoReturn, Type, List, NamedTuple
+from collections import namedtuple
 import file_utils as fu
 import sys
 
+
 def LOG(error: str) -> NoReturn:
     print(error)
+
 
 class FileException(Exception):
     pass
@@ -86,14 +89,15 @@ class File(object):
 
 
 # TODO : Perhaps change the match obj to a list
-def find_in_file(path: str, matches: List[str]) -> List[Tuple[int, str]]:
+def find_in_file(path: str, matches: List[str]) -> List[NamedTuple]:
     lines = None  # Will hold the contents of each line
     with File(path) as f:
         # Should be [(line_n, contents)]
         lines = enumerate(list(f.file_handle))
 
     # Run the string checking in each of the lines
-    return [(n + 1, s) for n, s in lines for match in matches if match in s]
+    Entry = namedtuple("Entry", ["line", "s"])
+    return [Entry(n, s) for n, s in lines for match in matches if match in s]
 
 
 def main() -> NoReturn:
