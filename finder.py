@@ -27,34 +27,6 @@ import json
 import itertools
 
 
-# TODO : Should really be a builder in the file_tree.py script
-def build_file_tree(path: str) -> Node:
-    return get_node(path)
-
-
-def get_node(path: str) -> Node:
-
-    if file_utils.is_file(path):
-        return FileNode(path)
-    elif folder_utils.is_folder(path):
-        curr_node = FolderNode(path)
-
-        abs_path = file_utils.get_abs_path(path)
-        child_names = [folder_utils.join_path(abs_path, f) for f in folder_utils.get_files(path)]
-        files = [f for f in child_names if file_utils.is_file(f)]
-        folders = [f for f in child_names if folder_utils.is_folder(f)]
-
-        for f in files:
-            curr_node.add_child(FileNode(f))
-        for f in folders:
-            curr_node.add_child(get_node(f))
-
-        return curr_node
-
-    else:
-        raise NodeError("Invalid Node type for path")
-
-
 def get_all_file_nodes(root: FolderNode) -> List[FileNode]:
 
     def get_all_file_nodes_r(curr_node: Node):
@@ -69,25 +41,30 @@ def get_all_file_nodes(root: FolderNode) -> List[FileNode]:
     return get_all_file_nodes_r(root)
 
 
-def analyse_files(files: List[str], matches: List[str], extensions: List[str], max_size: int) -> Dict[str, List[NamedTuple]]:
+def analyse_files(files: List[str], matches: List[str], extensions: List[str], ignore: bool, max_size: int) -> Dict[str, List[NamedTuple]]:
     occurrences = {}
     i = 0
     for file in files:
         print("Analysing {:.2f}   \r".format(100*i/len(files)), end="")
-        i += 1
 
-        # Filter out non source files
-        if file_utils.get_extension(file) not in extensions:
-            continue
+        if ignore:
+            if not not extensions and file_utils.get_extension(file) in extensions:
+                continue
+        else:
+            # Filter out non source files
+            if not not extensions and file_utils.get_extension(file) not in extensions:
+                continue
+
         # Filter out files that are too big
         if file_utils.get_file_size(file) > max_size:
             continue
 
+        i += 1
         results = io_utils.find_in_file(file, matches)
         if len(results) > 0:
             occurrences[file] = results
 
-    return occurrences
+    return occurrences, i
 
 
 def parse_arg(argument: Argument, doc_args: Dict[str, str]) -> ParsedArgument:
@@ -150,15 +127,24 @@ def main() -> NoReturn:
 
     root_folder = [arg.value for arg in valid_parsed if arg.arg == "<dir>"][0]
     print("Generating file tree...")
-    root_node = build_file_tree(root_folder)
+    root_node = Node.from_path(root_folder, FolderNode)
 
     print("Finding files...")
     all_files = get_all_file_nodes(root_node)
     print("Number of files found: {:d}".format(len(all_files)))
 
     print("Checking for word occurrences")
-    occurrences = analyse_files(files=all_files, matches=[" LFM ", " Server ", " NetView ", " Netview ", " netview "], extensions=["cc", "h", "cpp", "py"], max_size=3000000)
+
+    finder_params = {
+        "files": all_files,
+        "matches": [" LFM ", " Server ", " server ", " NetView ", " Netview ", " netview "],
+        "extensions": ["png", "jpg", "jpeg"],
+        "ignore": True,
+        "max_size": 3000000
+    }
+    occurrences, n = analyse_files(**finder_params)
     print("")
+    print("Number of files analysed: {:d}".format(n))
     print("Number of files which contain the matches: {:d}".format(len(occurrences)))
     print("Preparing JSON data...")
     json_dump = {}

@@ -2,7 +2,7 @@
 from __future__ import annotations
 import folder_utils
 import file_utils
-from typing import NoReturn
+from typing import NoReturn, Type
 
 
 class NodeError(Exception):
@@ -33,6 +33,15 @@ class Node(object):
     Parent of all the node objects. This represents a
     Node in a tree, it may have children.
     """
+
+    @classmethod
+    def from_path(cls, p: str, root_cls: Type[FolderNode]) -> Node:
+        if issubclass(root_cls, FileNode):
+            return FileNode.get_node_from_path(p)
+        elif issubclass(root_cls, FolderNode):
+            return FolderNode.get_node_from_path(p, FileNode)
+        else:
+            raise NodeError("Unsupported class type for the path")
 
     def __init__(self, name: str):
         self.name = name
@@ -76,28 +85,17 @@ class Node(object):
         return "({:s}, Name: {:s}, N Children: {:d})".format(self.__class__.__name__, self.name, len(self.children))
 
 
-class FolderNode(Node):
-    """
-    This is the representation of a folder in the file
-    tree. Note that the children of this object may be
-    another folder or a file.
-    """
-
-    def __init__(self, path: str):
-
-        if not folder_utils.is_folder(path):
-            raise FolderNodeError("Path given is not a valid folder")
-
-        super().__init__(folder_utils.get_dir_name(path))
-        self.path = path
-
-
+# TODO : Prevent people from changing the path after creation
 class FileNode(Node):
     """
     This is the representation of a file in the file
     tree. Note that this object cannot have any children,
     so the get/add children objects are deleted.
     """
+
+    @classmethod
+    def get_node_from_path(cls, path: str):
+        return cls(path)
 
     def __init__(self, path: str):
 
@@ -121,11 +119,34 @@ class FileNode(Node):
         return filtered
 
 
-def view_node(node: Node, n: int = 0) -> NoReturn:
-    print_f = print  # May be a file output or something
-    trail = "|" + "-" * (n*2)
-    print_f(trail + "{:s}".format(node.name))
+# TODO : Prevent people from changing the path after creation
+class FolderNode(Node):
+    """
+    This is the representation of a folder in the file
+    tree. Note that the children of this object may be
+    another folder or a file.
+    """
 
-    if node.__class__ == FolderNode:
-        for child in node:
-            view_node(child, n + 1)
+    # Builder from the path
+    @classmethod
+    def get_node_from_path(cls, path: str, file_cls: Type[FileNode] = FileNode) -> FolderNode:
+        abs_path = file_utils.get_abs_path(path)
+        curr_node = cls(abs_path)
+        child_names = [folder_utils.join_path(abs_path, f) for f in folder_utils.get_files(path)]
+        files = [f for f in child_names if file_utils.is_file(f)]
+        folders = [f for f in child_names if folder_utils.is_folder(f)]
+
+        for f in files:
+            curr_node.add_child(file_cls.get_node_from_path(f))
+        for f in folders:
+            curr_node.add_child(cls.get_node_from_path(f, file_cls))
+
+        return curr_node
+
+    def __init__(self, path: str):
+
+        if not folder_utils.is_folder(path):
+            raise FolderNodeError("Path given is not a valid folder")
+
+        super().__init__(folder_utils.get_dir_name(path))
+        self.path = path
