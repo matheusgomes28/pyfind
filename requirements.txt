@@ -1,3 +1,4 @@
 docopt>=0.6.2
 colorama>=0.4.1
 pytest
+pandas>=0.25

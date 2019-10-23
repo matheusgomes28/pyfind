@@ -1,17 +1,19 @@
 """ Finder CLI - Script to run through the codebase and find instances of words.
 
 Usage:
-finder.py <dir>
-finder.py <dir> (-s <save> | --save=<save>)
+finder.py <dir> [--words <words>...]
+finder.py <dir> (-s <save> | --save=<save>) [--words <words>...]
 finder.py (-h | --help)
 
 Options:
     -h --help                          Show the programs help page.
     -s<save> --save=<save>             Indicates the output should be saved.
+    --words                 Passes the words to look for
 
 Arguments:
     <dir>                              The string representing the directory.
     <save>                             The save directory to use.
+    <words>...                         The words to lookup in the files.
 """
 
 from colorama import Fore, Back, Style
@@ -87,7 +89,7 @@ def parse_arg(argument: Argument, doc_args: Dict[str, str]) -> ParsedArgument:
         if argument.option.long:
             long = "--" + argument.option.long
 
-        if not (doc_args[short] or doc_args[long]):
+        if not ((short in doc_args) or (long in doc_args)):
             can_get_val = False
 
     if argument.arg:
@@ -103,6 +105,7 @@ def main() -> NoReturn:
     to_parse = [
         Argument("<dir>", "root directory"),
         Argument("<save>", "save directory for output.", ArgumentOption("s", "save")),
+        Argument("<words>", "words to look for.", ArgumentOption("", "words"))
     ]
 
     # Should be run on Windows, not necessary to have
@@ -126,6 +129,8 @@ def main() -> NoReturn:
     print("================================")
 
     root_folder = [arg.value for arg in valid_parsed if arg.arg == "<dir>"][0]
+    words = [arg.value for arg in valid_parsed if arg.arg == "<words>"][0]
+
     print("Generating file tree...")
     root_node = Node.from_path(root_folder, FolderNode)
 
@@ -135,13 +140,17 @@ def main() -> NoReturn:
 
     print("Checking for word occurrences")
 
+    to_match = [" LFM ", " Server ", " server ", " NetView ", " netview "]
+    if words:
+        to_match = words
     finder_params = {
         "files": all_files,
-        "matches": [" LFM ", " Server ", " server ", " NetView ", " Netview ", " netview "],
+        "matches": to_match,
         "extensions": ["png", "jpg", "jpeg"],
         "ignore": True,
-        "max_size": 3000000
+        "max_size": 3000000 # 3Mb max file
     }
+    print("Looking for the following words: {:s}".format(", ".join(to_match)))
     occurrences, n = analyse_files(**finder_params)
     print("")
     print("Number of files analysed: {:d}".format(n))

@@ -69,10 +69,10 @@ def main() -> NoReturn:
     testing_path1 = "hello.txt"
     print("File extension of %s: %s" % (testing_path1, get_extension(testing_path1)))
 
-    testing_path2 = "C:\\Users\\matheus.gomes\\hello.txt";
+    testing_path2 = "C:\\Users\\matheus.gomes\\hello.txt"
     print("File extension of %s: %s" % (testing_path2, get_extension(testing_path2)))
 
-    testing_path3 = "C:/Users/matheus.gomes/hello.txt";
+    testing_path3 = "C:/Users/matheus.gomes/hello.txt"
     print("File extension of %s: %s" % (testing_path3, get_extension(testing_path3)))
 
     print("Size of %s in bytes is: %d" % (testing_path2, get_file_size(testing_path2)))
