@@ -1,4 +1,4 @@
-# PyFind - Finding instances in a codebas
+# PyFind - Finding instances in a codebase
 
 This project is a simple script I had put together to go through the codebase of a repository and find instances of strings.
 It helps a lot with application rebranding or even when trying to find objects like images.
